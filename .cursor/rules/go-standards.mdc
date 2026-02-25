@@ -84,6 +84,13 @@ alwaysApply: true
   - Prefer the standard `flag` package for simple CLI input in small programs.
   - After `flag.Parse()`, check `flag.Args()` and, if any extra arguments remain, inform the user that these are currently unsupported so they are not silently ignored.
 
+## Running Go tests in this repo
+
+- **Use the module directory as the working directory**
+  - When a `go.mod` file exists in a subdirectory (like `investment_calculator`), run tests from that directory, e.g. `go test`.
+  - Prefer `go test` (without `./...`) for a single-module directory; use `go test ./...` only when you intentionally want to run all packages under the current module root.
+  - Avoid running `go test ./...` from a parent directory that does not contain a `go.mod`, as Go will report that the directory prefix does not contain the main module.
+
 ## Examples (Good vs Bad)
 
 ### Naming and structure
