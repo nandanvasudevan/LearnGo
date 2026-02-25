@@ -7,7 +7,7 @@ import (
 
 func floatEquals(t *testing.T, got, want, tolerance float64) {
 	t.Helper()
-	if math.Abs(got-want) > tolerance {
+	if math.Abs(got - want) > tolerance {
 		t.Fatalf("got %v, want %v (tolerance %v)", got, want, tolerance)
 	}
 }
@@ -28,11 +28,11 @@ func TestCalculateMaturityValue(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name              string
-		investmentAmount  uint
-		expectedRate      float64
-		years             int
-		want              float64
+		name             string
+		investmentAmount uint
+		expectedRate     float64
+		years            int
+		want             float64
 	}{
 		{
 			name:             "zero years returns principal",
@@ -53,7 +53,7 @@ func TestCalculateMaturityValue(t *testing.T) {
 			investmentAmount: 1000,
 			expectedRate:     5.5,
 			years:            10,
-			want:             float64(1000) * math.Pow(1.0+5.5/100.0, 10),
+			want:             float64(1000) * math.Pow(1.0 + 5.5 / 100.0, 10),
 		},
 	}
 
@@ -98,7 +98,7 @@ func TestAdjustForInflation(t *testing.T) {
 			amount:        10000,
 			inflationRate: 2.5,
 			years:         5,
-			want:          10000 / math.Pow(1.0+2.5/100.0, 5),
+			want:          10000 / math.Pow(1.0 + 2.5 / 100.0, 5),
 		},
 	}
 
@@ -118,10 +118,10 @@ func TestAdjustForInflationInverseOfMaturityValueWhenRatesMatch(t *testing.T) {
 	t.Parallel()
 
 	const (
-		investmentAmount  uint    = 2500
-		rate              float64 = 4.0
-		years             int     = 12
-		tolerance                 = 1e-6
+		investmentAmount uint    = 2500
+		rate             float64 = 4.0
+		years            int     = 12
+		tolerance                = 1e-6
 	)
 
 	maturity := calculateMaturityValue(investmentAmount, rate, years)
@@ -134,9 +134,9 @@ func TestCalculateMaturityValueWithNegativeRate(t *testing.T) {
 	t.Parallel()
 
 	const (
-		investmentAmount  uint    = 1000
-		negativeRate      float64 = -5.5
-		years             int     = 10
+		investmentAmount uint    = 1000
+		negativeRate     float64 = -5.5
+		years            int     = 10
 	)
 
 	mustPanic(t, func() {
@@ -155,7 +155,7 @@ func TestAdjustForInflationWithNegativeInflationRate(t *testing.T) {
 	)
 
 	got := adjustForInflation(amount, negativeInflation, years)
-	want := amount / math.Pow(1.0+negativeInflation/100.0, float64(years))
+	want := amount / math.Pow(1.0 + negativeInflation / 100.0, float64(years))
 
 	floatEquals(t, got, want, tolerance)
 }
@@ -187,5 +187,3 @@ func TestAdjustForInflationWithNegativeYears(t *testing.T) {
 		_ = adjustForInflation(amount, inflationRate, years)
 	})
 }
-
-

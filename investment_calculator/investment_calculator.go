@@ -17,7 +17,7 @@ func calculateMaturityValue(investmentAmount uint, expectedReturnRate float64, y
 		panic("years must be non-negative")
 	}
 
-	return float64(investmentAmount) * math.Pow(1.0+expectedReturnRate/100.0, float64(years))
+	return float64(investmentAmount) * math.Pow(1.0 + expectedReturnRate / 100.0, float64(years))
 }
 
 // adjustForInflation discounts a future amount back to today's money
@@ -27,7 +27,7 @@ func adjustForInflation(amount float64, inflationRate float64, years int) float6
 		panic("years must be non-negative")
 	}
 
-	return amount / math.Pow(1.0+inflationRate/100.0, float64(years))
+	return amount / math.Pow(1.0 + inflationRate / 100.0, float64(years))
 }
 
 func main() {

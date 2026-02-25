@@ -33,6 +33,10 @@ alwaysApply: true
   - Keep `if`, `for`, and `switch` blocks simple; extract helper functions if branches become large.
   - Prefer early returns to deeply nested `if` statements when it improves readability.
 
+- **Formatting**
+  - Use `gofmt` for general formatting, but **do not rely on it to adjust arithmetic spacing**.
+  - When writing or refactoring code, surround arithmetic operators (`+`, `-`, `*`, `/`, `%`) with a single space on both sides for readability (for example, `a + b*c` should be written as `a + b * c`), even in expressions where `gofmt` would normally allow more compact forms like `1.0+rate/100.0`.
+
 - **Error handling**
   - Use the standard `value, err := ...` pattern and check `if err != nil { ... }` close to where the error occurs.
   - Avoid using `panic` for regular error handling; reserve it for truly unrecoverable situations in examples.
