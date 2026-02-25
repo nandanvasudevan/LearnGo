@@ -1,0 +1,140 @@
+---
+description: Go coding guidance with SOLID and DRY principles for this learning project
+globs: **/*.go
+alwaysApply: true
+---
+
+# Go Standards for This Project
+
+## How the AI should help
+
+- **Beginner-friendly explanations**: When introducing new Go concepts, add short, clear explanations and relate them to what the user already wrote.
+- **Idiomatic Go first**: Prefer standard library features and Go idioms (simple control flow, clear names, minimal magic) over patterns from other languages.
+- **Moderate SOLID/DRY enforcement**: Suggest design improvements and small refactors, but avoid large over-engineering, especially for small course exercises.
+- **Keep code runnable**: Preserve working behavior; if a refactor is suggested, outline it in steps and keep the main example simple.
+
+## Basic Go Usage Guidelines
+
+- **Packages and entry points**
+  - Use `package main` and a single `main` function as the entry point for small programs.
+  - Group related functionality into separate files and, for larger examples, into packages with clear purposes.
+
+- **Naming**
+  - Use **mixedCaps** / **CamelCase** as per Go conventions (`investmentAmount`, `CalculateReturn`).
+  - Exported identifiers (used from other packages) should start with a capital letter and have clear, descriptive names.
+  - Avoid abbreviations unless they are very common (`err`, `ID`, `URL`).
+
+- **Types and variables**
+  - Prefer the most precise type that communicates intent (e.g., `float64` for money/time calculations in this course; avoid `interface{}` unless needed).
+  - Use `const` for values that should not change (e.g., configuration-like values within simple exercises).
+  - Prefer short variable declarations `:=` when the type can be inferred locally.
+
+- **Control flow**
+  - Keep `if`, `for`, and `switch` blocks simple; extract helper functions if branches become large.
+  - Prefer early returns to deeply nested `if` statements when it improves readability.
+
+- **Error handling**
+  - Use the standard `value, err := ...` pattern and check `if err != nil { ... }` close to where the error occurs.
+  - Avoid using `panic` for regular error handling; reserve it for truly unrecoverable situations in examples.
+
+- **Documentation and comments**
+  - Use Go doc comments (`// Name ...`) on exported functions, methods, types, and packages to describe what they do at a high level.
+  - Keep comments in plain, simple English; avoid restating the obvious (do not narrate each line of code).
+  - Focus comments on *why* something is done a certain way, important constraints, or non-obvious behavior.
+  - When adding new public APIs in larger examples, include a short doc comment so `go doc` output is helpful.
+
+## SOLID in Go (Pragmatic)
+
+- **Single Responsibility**
+  - Each function and type should have one main reason to change.
+  - When a function starts handling input, business logic, and printing/output all at once, guide towards extracting smaller helpers.
+
+- **Open/Closed Principle**
+  - When behavior needs to vary (e.g., different ways to calculate a result), suggest using small interfaces or function parameters rather than copy-pasting branches everywhere.
+  - Prefer composition (types that embed or hold other types) to inheritance-like patterns.
+
+- **Liskov Substitution**
+  - Design interfaces so that any implementation can be used without surprising the caller.
+  - Avoid interfaces that require methods with surprising side effects for some implementations.
+
+- **Interface Segregation**
+  - Keep interfaces small and focused (often just 1–3 methods).
+  - In this project, suggest defining interfaces close to where they are used to keep examples easy to follow.
+
+- **Dependency Inversion**
+  - For logic that depends on external details (I/O, time, random, etc.), suggest depending on small interfaces so the core logic can be tested easily.
+  - Do not force interfaces everywhere; only introduce them when they clearly improve clarity or testability.
+
+## DRY (Don't Repeat Yourself) Principles
+
+- **Avoid copy-paste**:
+  - When the same or very similar code appears 3 or more times, propose extracting a helper function or method.
+  - For two occurrences, prefer clarity and duplication over premature abstraction unless the logic is obviously generic.
+
+- **Shared calculations and formatting**:
+  - For repeated calculations (e.g., interest, tax, or formatting of amounts), suggest a dedicated function with a clear name.
+  - Reuse constants or configuration variables rather than hard-coding the same literal values across multiple places.
+
+- **Balance clarity and abstraction**:
+  - Keep abstractions simple and aligned with the course level; avoid patterns that would confuse a beginner for minimal reuse gains.
+
+## User input management
+
+- **Command-line flags and arguments**
+  - Prefer the standard `flag` package for simple CLI input in small programs.
+  - After `flag.Parse()`, check `flag.Args()` and, if any extra arguments remain, inform the user that these are currently unsupported so they are not silently ignored.
+
+## Examples (Good vs Bad)
+
+### Naming and structure
+
+```go
+// ❌ BAD: unclear naming and mixed responsibilities
+func calc(a, b float64) float64 {
+	result := a * (1 + b/100)
+	fmt.Println("Result:", result)
+	return result
+}
+
+// ✅ GOOD: clearer naming and separated concerns
+func calculateMaturityValue(amount, rate float64) float64 {
+	return amount * (1 + rate/100)
+}
+
+func printMaturityValue(result float64) {
+	fmt.Println("Maturity value:", result)
+}
+```
+
+### Error handling
+
+```go
+// ❌ BAD: ignoring possible error
+data, _ := os.ReadFile("config.json")
+fmt.Println(string(data))
+
+// ✅ GOOD: check and handle error explicitly
+data, err := os.ReadFile("config.json")
+if err != nil {
+	fmt.Println("could not read config:", err)
+	return
+}
+fmt.Println(string(data))
+```
+
+### DRY with simple helper
+
+```go
+// ❌ BAD: repeated inflation adjustment logic
+adjusted1 := value1 / math.Pow(1+inflationRate/100, years)
+adjusted2 := value2 / math.Pow(1+inflationRate/100, years)
+
+// ✅ GOOD: small reusable helper
+func adjustForInflation(value, inflationRate, years float64) float64 {
+	return value / math.Pow(1+inflationRate/100, years)
+}
+
+adjusted1 := adjustForInflation(value1, inflationRate, years)
+adjusted2 := adjustForInflation(value2, inflationRate, years)
+```
+
