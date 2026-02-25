@@ -8,13 +8,25 @@ import (
 
 // calculateMaturityValue computes the compound value of an investment
 // after a given number of years at the expected annual return rate.
-func calculateMaturityValue(investmentAmount uint, expectedReturnRate float64, years uint) float64 {
+func calculateMaturityValue(investmentAmount uint, expectedReturnRate float64, years int) float64 {
+	if expectedReturnRate < 0 {
+		panic("expected annual return rate must be non-negative")
+	}
+
+	if years < 0 {
+		panic("years must be non-negative")
+	}
+
 	return float64(investmentAmount) * math.Pow(1.0+expectedReturnRate/100.0, float64(years))
 }
 
 // adjustForInflation discounts a future amount back to today's money
 // using an annual inflation rate and the same investment horizon.
-func adjustForInflation(amount float64, inflationRate float64, years uint) float64 {
+func adjustForInflation(amount float64, inflationRate float64, years int) float64 {
+	if years < 0 {
+		panic("years must be non-negative")
+	}
+
 	return amount / math.Pow(1.0+inflationRate/100.0, float64(years))
 }
 
@@ -22,13 +34,13 @@ func main() {
 	const (
 		defaultInvestmentAmount   uint    = 1000
 		defaultExpectedReturnRate float64 = 5.5
-		defaultYears              uint    = 10
+		defaultYears              int     = 10
 		defaultInflationRate      float64 = 6.5
 	)
 
 	investmentAmount := flag.Uint("amount", defaultInvestmentAmount, "initial investment amount")
 	expectedReturnRate := flag.Float64("rate", defaultExpectedReturnRate, "expected annual return rate (percent)")
-	years := flag.Uint("years", defaultYears, "investment duration in years")
+	years := flag.Int("years", defaultYears, "investment duration in years")
 	inflationRate := flag.Float64("inflation", defaultInflationRate, "annual inflation rate (percent)")
 
 	flag.Parse()

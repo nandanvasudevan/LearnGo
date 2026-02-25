@@ -12,6 +12,18 @@ func floatEquals(t *testing.T, got, want, tolerance float64) {
 	}
 }
 
+func mustPanic(t *testing.T, f func()) {
+	t.Helper()
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatalf("expected panic but function completed without panicking")
+		}
+	}()
+
+	f()
+}
+
 func TestCalculateMaturityValue(t *testing.T) {
 	t.Parallel()
 
@@ -19,7 +31,7 @@ func TestCalculateMaturityValue(t *testing.T) {
 		name              string
 		investmentAmount  uint
 		expectedRate      float64
-		years             uint
+		years             int
 		want              float64
 	}{
 		{
@@ -64,7 +76,7 @@ func TestAdjustForInflation(t *testing.T) {
 		name          string
 		amount        float64
 		inflationRate float64
-		years         uint
+		years         int
 		want          float64
 	}{
 		{
@@ -108,7 +120,7 @@ func TestAdjustForInflationInverseOfMaturityValueWhenRatesMatch(t *testing.T) {
 	const (
 		investmentAmount  uint    = 2500
 		rate              float64 = 4.0
-		years             uint    = 12
+		years             int     = 12
 		tolerance                 = 1e-6
 	)
 
@@ -117,4 +129,63 @@ func TestAdjustForInflationInverseOfMaturityValueWhenRatesMatch(t *testing.T) {
 
 	floatEquals(t, got, float64(investmentAmount), tolerance)
 }
+
+func TestCalculateMaturityValueWithNegativeRate(t *testing.T) {
+	t.Parallel()
+
+	const (
+		investmentAmount  uint    = 1000
+		negativeRate      float64 = -5.5
+		years             int     = 10
+	)
+
+	mustPanic(t, func() {
+		_ = calculateMaturityValue(investmentAmount, negativeRate, years)
+	})
+}
+
+func TestAdjustForInflationWithNegativeInflationRate(t *testing.T) {
+	t.Parallel()
+
+	const (
+		amount            float64 = 10000
+		negativeInflation float64 = -2.5
+		years             int     = 5
+		tolerance                 = 1e-6
+	)
+
+	got := adjustForInflation(amount, negativeInflation, years)
+	want := amount / math.Pow(1.0+negativeInflation/100.0, float64(years))
+
+	floatEquals(t, got, want, tolerance)
+}
+
+func TestCalculateMaturityValueWithNegativeYears(t *testing.T) {
+	t.Parallel()
+
+	const (
+		investmentAmount uint    = 1500
+		expectedRate     float64 = 3.0
+		years            int     = -1
+	)
+
+	mustPanic(t, func() {
+		_ = calculateMaturityValue(investmentAmount, expectedRate, years)
+	})
+}
+
+func TestAdjustForInflationWithNegativeYears(t *testing.T) {
+	t.Parallel()
+
+	const (
+		amount        float64 = 5000
+		inflationRate float64 = 2.0
+		years         int     = -5
+	)
+
+	mustPanic(t, func() {
+		_ = adjustForInflation(amount, inflationRate, years)
+	})
+}
+
 
